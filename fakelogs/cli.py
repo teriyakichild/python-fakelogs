@@ -56,5 +56,5 @@ def main():
             # call the log generator function asynchronously with generating the Faker seed with:
             # random.randint(1,4000) + the iterator number
             # This ensures that each call returns different data
-            pool.apply_async(log_generators[config['OUTPUT_FORMAT']], (random.randint(1,4000)+i,))
+            pool.apply_async(log_generators[config['OUTPUT_FORMAT']], (random.randint(1,10000)+i,))
         time.sleep(config['TIME_TO_SLEEP'])
