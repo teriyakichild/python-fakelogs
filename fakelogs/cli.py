@@ -1,11 +1,13 @@
 import json
 import logging
 import os
+import sys
 import time
 
 from faker import Faker
 
-logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
+logging.basicConfig(stream=sys.stdout, level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
+#logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
 def read_from_environment():
     config = {}
@@ -16,7 +18,7 @@ def read_from_environment():
 
 def generate_text_log():
     Factory = Faker()
-    logging.warning(Factory.sentence(nb_words=15))
+    logging.info(Factory.sentence(nb_words=15))
 
 def generate_kv_log():
     Factory = Faker()
@@ -24,7 +26,7 @@ def generate_kv_log():
     # The following fields aren't strings so we will remove them to avoid additional processing.
     del profile['current_location']
     del profile['website']
-    logging.warning(' '.join(['{0}={1}'.format(k,v) for k,v in profile.items()]))
+    logging.info(' '.join(['{0}={1}'.format(k,v) for k,v in profile.items()]))
 
 def generate_json_log():
     def json_default(o):
@@ -34,7 +36,7 @@ def generate_json_log():
         return o.__str__()
 
     Factory = Faker()
-    logging.warning(json.dumps(Factory.profile(), default=json_default))
+    logging.info(json.dumps(Factory.profile(), default=json_default))
 
 def main():
     config = read_from_environment()
