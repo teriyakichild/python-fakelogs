@@ -16,6 +16,7 @@ def read_from_environment():
     config['OUTPUT_FORMAT'] = os.getenv('OUTPUT_FORMAT', 'text')
     config['TIME_TO_SLEEP'] = int(os.getenv('TIME_TO_SLEEP', 1))
     config['RECORDS_PER_ITERATION'] = int(os.getenv('RECORDS_PER_ITERATION', 1))
+    config['POOL_PROCESSES'] = int(os.getenv('POOL_PROCESSES', 1))
     return config
 
 def generate_text_log(seed):
@@ -50,7 +51,7 @@ def main():
         'kv': generate_kv_log,
         'json': generate_json_log,
     }
-    pool = Pool(processes=4)
+    pool = Pool(processes=config['POOL_PROCESSES'])
     while True:
         for i in range(config['RECORDS_PER_ITERATION']):
             # call the log generator function asynchronously with generating the Faker seed with:
