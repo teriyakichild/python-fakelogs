@@ -19,7 +19,7 @@ Environment variables are used to configure the output of this program:
    * kv - This generates a log with fake user profile data (Faker.profile) using a key/value pair format.
    * json - This generates a log with fake user profile data (Faker.profile) using a json format
 2. TIME_TO_SLEEP: This is the time to sleep in seconds between each data generation (default is 1 second)
-3. RECORDS_PER_ITERATION: This is the number of log records that should be generated before sleeping.
+3. RECORDS_PER_ITERATION: This is the number of log records that should be generated before sleeping. (default is 1)
 
 ## Usage
 ```bash
