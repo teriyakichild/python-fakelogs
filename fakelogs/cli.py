@@ -5,6 +5,7 @@ import sys
 import time
 
 from faker import Faker
+from multiprocessing import Pool
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
 #logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
@@ -45,8 +46,7 @@ def main():
         'kv': generate_kv_log,
         'json': generate_json_log,
     }
-
+    pool = Pool(processes=4)
     while True:
-        for _ in range(config['RECORDS_PER_ITERATION']):
-            log_generators[config['OUTPUT_FORMAT']]()
+        multiple_results = [pool.apply_async(log_generators[config['OUTPUT_FORMAT']], ()) for i in range(config['RECORDS_PER_ITERATION'])]
         time.sleep(config['TIME_TO_SLEEP'])
