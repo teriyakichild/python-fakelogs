@@ -16,7 +16,7 @@ def read_from_environment():
 
 def generate_text_log():
     Factory = Faker()
-    logging.warning(Factory.text())
+    logging.warning(Factory.sentence(nb_words=15))
 
 def generate_kv_log():
     Factory = Faker()
