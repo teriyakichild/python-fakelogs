@@ -1,0 +1,2 @@
+recursive-include fakelogs
+include README.md requirements.txt

@@ -1,0 +1,6 @@
+*.pyc
+fakelogs.egg-info
+build
+dist
+rpm-build
+rpms
