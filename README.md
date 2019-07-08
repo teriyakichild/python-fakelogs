@@ -7,7 +7,7 @@ This library can be used to generate a high volume of fake logs in multiple form
 ```bash
 pip install fakelogs 
 #or 
-sudo make install 
+make install 
 #or 
 python setup.py install
 ```
