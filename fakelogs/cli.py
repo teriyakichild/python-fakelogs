@@ -14,7 +14,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO, format='%(asctime)s -
 def read_from_environment():
     config = {}
     config['OUTPUT_FORMAT'] = os.getenv('OUTPUT_FORMAT', 'text')
-    config['TIME_TO_SLEEP'] = int(os.getenv('TIME_TO_SLEEP', 1))
+    config['TIME_TO_SLEEP'] = float(os.getenv('TIME_TO_SLEEP', 1))
     config['RECORDS_PER_ITERATION'] = int(os.getenv('RECORDS_PER_ITERATION', 1))
     config['POOL_PROCESSES'] = int(os.getenv('POOL_PROCESSES', 1))
     return config
