@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import random
 import sys
 import time
 
@@ -17,19 +18,21 @@ def read_from_environment():
     config['RECORDS_PER_ITERATION'] = int(os.getenv('RECORDS_PER_ITERATION', 1))
     return config
 
-def generate_text_log():
+def generate_text_log(seed):
     Factory = Faker()
+    Factory.seed(seed)
     logging.info(Factory.sentence(nb_words=15))
 
-def generate_kv_log():
+def generate_kv_log(seed):
     Factory = Faker()
+    Factory.seed(seed)
     profile = Factory.profile()
     # The following fields aren't strings so we will remove them to avoid additional processing.
     del profile['current_location']
     del profile['website']
     logging.info(' '.join(['{0}={1}'.format(k,v) for k,v in profile.items()]))
 
-def generate_json_log():
+def generate_json_log(seed):
     def json_default(o):
         # Two of the values returned by Faker.profile fail to serialize into json. They are
         # decimal.Decimal and datetime.date.  They both have a __str__ function that we can use
@@ -37,6 +40,7 @@ def generate_json_log():
         return o.__str__()
 
     Factory = Faker()
+    Factory.seed(seed)
     logging.info(json.dumps(Factory.profile(), default=json_default))
 
 def main():
@@ -48,5 +52,9 @@ def main():
     }
     pool = Pool(processes=4)
     while True:
-        multiple_results = [pool.apply_async(log_generators[config['OUTPUT_FORMAT']], ()) for i in range(config['RECORDS_PER_ITERATION'])]
+        for i in range(config['RECORDS_PER_ITERATION']):
+            # call the log generator function asynchronously with generating the Faker seed with:
+            # random.randint(1,4000) + the iterator number
+            # This ensures that each call returns different data
+            pool.apply_async(log_generators[config['OUTPUT_FORMAT']], (random.randint(1,4000)+i,))
         time.sleep(config['TIME_TO_SLEEP'])
