@@ -5,11 +5,15 @@ This library can be used to generate a high volume of fake logs in multiple form
 
 ## Install
 ```bash
-pip install fakelogs 
+#
+pip install fakelogs # This isn't working yet.  Once we have a stable release, it will be pushed to pypi
 #or 
-make install 
+make install
 #or 
 python setup.py install
+
+# For development, run from within the cloned directory like this:
+pip install -e .
 ```
 
 ## Configuration
