@@ -1,12 +1,12 @@
 import json
 import logging
+from multiprocessing import Pool
 import os
 import random
 import sys
 import time
 
 from faker import Faker
-from multiprocessing import Pool
 from fakelogs.log import generate_text_log, generate_kv_log, generate_json_log
 
 
@@ -20,6 +20,12 @@ def read_from_environment():
 
 def main():
     config = read_from_environment()
+    if '--help' in sys.argv or '-h' in sys.argv:
+        print('Usage:\n {0}\n {0} [-h|--help]\n {0} [-c|--show-config]'.format(sys.argv[0]))
+        exit(0)
+    elif '--show-config' in sys.argv or '-c' in sys.argv:
+        print(json.dumps(config, indent=2))
+        exit(0)
     log_generators = {
         'text': generate_text_log,
         'kv': generate_kv_log,
