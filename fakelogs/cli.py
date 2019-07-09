@@ -47,4 +47,4 @@ def main():
         if config['MAX_ITERATIONS']:
             if iterations >= config['MAX_ITERATIONS']:
                 logging.info('Maximum number of iterations hit. Quitting..')
-                exit(4)
+                exit(0)
