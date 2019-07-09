@@ -16,6 +16,7 @@ def read_from_environment():
     config['TIME_TO_SLEEP'] = float(os.getenv('TIME_TO_SLEEP', 1))
     config['RECORDS_PER_ITERATION'] = int(os.getenv('RECORDS_PER_ITERATION', 1))
     config['POOL_PROCESSES'] = int(os.getenv('POOL_PROCESSES', 1))
+    config['MAX_ITERATIONS'] = int(os.getenv('MAX_ITERATIONS', False))
     return config
 
 def main():
@@ -32,7 +33,9 @@ def main():
         'json': generate_json_log,
     }
     pool = Pool(processes=config['POOL_PROCESSES'])
+    iterations = 0
     while True:
+        iterations += 1
         for i in range(config['RECORDS_PER_ITERATION']):
             # call the log generator function asynchronously with generating the Faker seed with:
             # random.randint(1,4000) + the iterator number
@@ -41,3 +44,7 @@ def main():
         while not pool._inqueue.empty():
             time.sleep(0.1)
         time.sleep(config['TIME_TO_SLEEP'])
+        if config['MAX_ITERATIONS']:
+            if iterations >= config['MAX_ITERATIONS']:
+                logging.info('Maximum number of iterations hit. Quitting..')
+                exit(4)
