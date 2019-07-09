@@ -58,4 +58,6 @@ def main():
             # random.randint(1,4000) + the iterator number
             # This ensures that each call returns different data
             pool.apply_async(log_generators[config['OUTPUT_FORMAT']], (random.randint(1,10000)+i,))
+        while not pool._inqueue.empty():
+            time.sleep(0.1)
         time.sleep(config['TIME_TO_SLEEP'])
