@@ -1,25 +1,7 @@
-import json
 import os
 
 import pytest
-from fakelogs.cli import generate_text_log, generate_kv_log, generate_json_log, read_from_environment
-
-def test_generate_text_log(caplog):
-    generate_text_log(1234)
-    for record in caplog.records:
-        assert record.msg == u'Key account treat vote old public base short door air small get perhaps past chance consumer boy address main who.'
-
-
-def test_generate_json_log(caplog):
-    generate_json_log(1234)
-    for record in caplog.records:
-        assert json.loads(record.msg)['company'] == 'Smith-Bartlett'
-
-
-def test_generate_kv_log(caplog):
-    generate_kv_log(1234)
-    for record in caplog.records:
-        assert 'username=hkrueger' in record.msg 
+from fakelogs.cli import read_from_environment
 
 
 def test_read_from_environment_defaults():
