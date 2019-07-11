@@ -22,9 +22,9 @@ def read_from_environment():
 def main():
     config = read_from_environment()
     if '--help' in sys.argv or '-h' in sys.argv:
-        print('Usage:\n {0}\n {0} [-h|--help]\n {0} [-c|--show-config]'.format(sys.argv[0]))
+        print('Usage:\n {0}\n {0} [-h|--help]\n {0} [--show-config]'.format(sys.argv[0]))
         exit(0)
-    elif '--show-config' in sys.argv or '-c' in sys.argv:
+    elif '--show-config' in sys.argv:
         print(json.dumps(config, indent=2))
         exit(0)
     log_generators = {
