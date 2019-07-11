@@ -5,10 +5,11 @@ from fakelogs.cli import read_from_environment
 
 
 def test_read_from_environment_defaults():
-    del os.environ['OUTPUT_FORMAT']
-    del os.environ['TIME_TO_SLEEP']
-    del os.environ['RECORDS_PER_ITERATION']
-    del os.environ['POOL_PROCESSES']
+    for key in ['OUTPUT_FORMAT', 'TIME_TO_SLEEP', 'RECORDS_PER_ITERATION', 'POOL_PROCESSES']:
+        try:
+            del os.environ[key]
+        except:
+            pass
     config = read_from_environment()
     assert config['OUTPUT_FORMAT'] == 'text'
     assert config['TIME_TO_SLEEP'] == 1.0
