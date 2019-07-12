@@ -3,7 +3,7 @@
 %define module_name fakelogs
 
 Name:           %{module_name}
-Version:        0.0.1
+Version:        0.1.0
 Release:        1
 Summary:        fakelogs - library to generate fake logs
 
@@ -34,5 +34,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(0755,-,-) %{_bindir}/fakelogs
 
 %changelog
+* Fri Jul 12 2019 Tony Rogers <tony.rogers@logdna.com> - 0.1.0
+- First kinda stable release
 * Mon Jul 8 2019 Tony Rogers <tony.rogers@logdna.com> - 0.0.1
 - Initial spec
