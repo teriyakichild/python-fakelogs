@@ -5,6 +5,7 @@ import os
 import random
 import sys
 import time
+import uuid
 
 from faker import Faker
 from fakelogs.log import generate_text_log, generate_kv_log, generate_json_log
@@ -17,6 +18,7 @@ def read_from_environment():
     config['RECORDS_PER_ITERATION'] = int(os.getenv('RECORDS_PER_ITERATION', 1))
     config['POOL_PROCESSES'] = int(os.getenv('POOL_PROCESSES', 1))
     config['MAX_ITERATIONS'] = int(os.getenv('MAX_ITERATIONS', False))
+    config['TRANSACTION_ID'] = str(os.getenv('TRANSACTION_ID', uuid.uuid4()))
     return config
 
 def main():
@@ -37,10 +39,14 @@ def main():
     while True:
         iterations += 1
         for i in range(config['RECORDS_PER_ITERATION']):
-            # call the log generator function asynchronously with generating the Faker seed with:
-            # random.randint(1,4000) + the iterator number
-            # This ensures that each call returns different data
-            pool.apply_async(log_generators[config['OUTPUT_FORMAT']], (random.randint(1,10000)+i,))
+            # random.randint uses the current time to generate the return.  When POOL_PROCESSES
+            # is set greater than 1, the log_generator function is called multiple times
+            # concurrently. This results in outputting sets of identical log records.
+            # To avoid this, we add the iteration index to the random number.
+            seed = random.randint(1,10000) + i
+            pool.apply_async(log_generators[config['OUTPUT_FORMAT']], (seed,config['TRANSACTION_ID']))
+
+        # wait until all the queued logs are generated
         while not pool._inqueue.empty():
             time.sleep(0.1)
         time.sleep(config['TIME_TO_SLEEP'])

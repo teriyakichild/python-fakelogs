@@ -23,6 +23,7 @@ Environment variables are used to configure the output of this program:
 3. RECORDS_PER_ITERATION: This is the number of log records that should be generated before sleeping. (default is 1)
 4. POOL_PROCESSES: Number of workers to use when generating logs.  Shouldn't be set higher than number of CPUs. (default is 1)
 5. MAX_ITERATIONS: Maximum number of iterations to perform before quitting. (Defaults to 0 which means there is no limit)
+6. TRANSACTION_ID: Unique Identifier that allows for easy searching of log messages. (Defaults to random UUID)
 
 ## Usage
 ```bash

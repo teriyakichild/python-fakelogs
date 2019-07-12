@@ -22,9 +22,11 @@ def test_read_from_environment_overrides():
     os.environ['TIME_TO_SLEEP'] = '2.0'
     os.environ['RECORDS_PER_ITERATION'] = '100'
     os.environ['POOL_PROCESSES'] = '4'
+    os.environ['TRANSACTION_ID'] = 'testing'
     config = read_from_environment()
     assert config['OUTPUT_FORMAT'] == 'json'
     assert config['TIME_TO_SLEEP'] == 2.0
     assert config['RECORDS_PER_ITERATION'] == 100
     assert config['POOL_PROCESSES'] == 4
+    assert config['TRANSACTION_ID'] == 'testing'
 
