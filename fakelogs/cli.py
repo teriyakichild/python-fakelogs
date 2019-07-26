@@ -54,11 +54,13 @@ def main():
         # wait until all the queued logs are generated
         while not pool._inqueue.empty():
             time.sleep(0.1)
+        # extra sleep to wait for dataset to populate
+        time.sleep(0.1)
         iterations = 0
         while True:
             for i in range(config['RECORDS_PER_ITERATION']):
                 iterations += 1
-                logging.info(dataset[random.randint(1,(config['PRELOAD_RECORDS'] - 1))])
+                logging.info(dataset[random.randint(0,(config['PRELOAD_RECORDS'] - 1))])
             time.sleep(config['TIME_TO_SLEEP'])
             if config['MAX_ITERATIONS']:
                 if iterations >= config['MAX_ITERATIONS']:
