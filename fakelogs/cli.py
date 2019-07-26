@@ -21,6 +21,7 @@ def read_from_environment():
     config['TRANSACTION_ID'] = str(os.getenv('TRANSACTION_ID', uuid.uuid4()))
     config['PRELOAD_DATA'] = bool(os.getenv('PRELOAD_DATA', False))
     config['PRELOAD_RECORDS'] = int(os.getenv('PRELOAD_RECORDS', 2000))
+    config['TEXT_WORD_COUNT'] = int(os.getenv('TEXT_WORD_COUNT', 15))
     return config
 
 def main():
@@ -49,7 +50,7 @@ def main():
             # concurrently. This results in outputting sets of identical log records.
             # To avoid this, we add the iteration index to the random number.
             seed = random.randint(1,10000) + i
-            pool.apply_async(log_generators[config['OUTPUT_FORMAT']], (seed,config['TRANSACTION_ID'],True), callback=callback)
+            pool.apply_async(log_generators[config['OUTPUT_FORMAT']], (seed,config,True), callback=callback)
         # wait until all the queued logs are generated
         while not pool._inqueue.empty():
             time.sleep(0.1)
@@ -73,7 +74,7 @@ def main():
                 # concurrently. This results in outputting sets of identical log records.
                 # To avoid this, we add the iteration index to the random number.
                 seed = random.randint(1,10000) + i
-                pool.apply_async(log_generators[config['OUTPUT_FORMAT']], (seed,config['TRANSACTION_ID']))
+                pool.apply_async(log_generators[config['OUTPUT_FORMAT']], (seed,config))
 
             # wait until all the queued logs are generated
             while not pool._inqueue.empty():
