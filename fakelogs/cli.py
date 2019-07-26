@@ -19,6 +19,8 @@ def read_from_environment():
     config['POOL_PROCESSES'] = int(os.getenv('POOL_PROCESSES', 1))
     config['MAX_ITERATIONS'] = int(os.getenv('MAX_ITERATIONS', False))
     config['TRANSACTION_ID'] = str(os.getenv('TRANSACTION_ID', uuid.uuid4()))
+    config['PRELOAD_DATA'] = bool(os.getenv('PRELOAD_DATA', False))
+    config['PRELOAD_RECORDS'] = int(os.getenv('PRELOAD_RECORDS', 2000))
     return config
 
 def main():
@@ -35,22 +37,49 @@ def main():
         'json': generate_json_log,
     }
     pool = Pool(processes=config['POOL_PROCESSES'])
-    iterations = 0
-    while True:
-        iterations += 1
-        for i in range(config['RECORDS_PER_ITERATION']):
+    if config['PRELOAD_DATA']:
+        logging.info('Generating dataset..')
+        dataset = []
+        def callback(result):
+            dataset.append(result)
+        # Generate the dataset
+        for i in range(config['PRELOAD_RECORDS']):
             # random.randint uses the current time to generate the return.  When POOL_PROCESSES
             # is set greater than 1, the log_generator function is called multiple times
             # concurrently. This results in outputting sets of identical log records.
             # To avoid this, we add the iteration index to the random number.
             seed = random.randint(1,10000) + i
-            pool.apply_async(log_generators[config['OUTPUT_FORMAT']], (seed,config['TRANSACTION_ID']))
-
+            pool.apply_async(log_generators[config['OUTPUT_FORMAT']], (seed,config['TRANSACTION_ID'],True), callback=callback)
         # wait until all the queued logs are generated
         while not pool._inqueue.empty():
             time.sleep(0.1)
-        time.sleep(config['TIME_TO_SLEEP'])
-        if config['MAX_ITERATIONS']:
-            if iterations >= config['MAX_ITERATIONS']:
-                logging.info('Maximum number of iterations hit. Quitting..')
-                exit(0)
+        iterations = 0
+        while True:
+            for i in range(config['RECORDS_PER_ITERATION']):
+                iterations += 1
+                logging.info(dataset[random.randint(1,(config['PRELOAD_RECORDS'] - 1))])
+            time.sleep(config['TIME_TO_SLEEP'])
+            if config['MAX_ITERATIONS']:
+                if iterations >= config['MAX_ITERATIONS']:
+                    logging.info('Maximum number of iterations hit. Quitting..')
+                    exit(0)
+    else:
+        iterations = 0
+        while True:
+            iterations += 1
+            for i in range(config['RECORDS_PER_ITERATION']):
+                # random.randint uses the current time to generate the return.  When POOL_PROCESSES
+                # is set greater than 1, the log_generator function is called multiple times
+                # concurrently. This results in outputting sets of identical log records.
+                # To avoid this, we add the iteration index to the random number.
+                seed = random.randint(1,10000) + i
+                pool.apply_async(log_generators[config['OUTPUT_FORMAT']], (seed,config['TRANSACTION_ID']))
+
+            # wait until all the queued logs are generated
+            while not pool._inqueue.empty():
+                time.sleep(0.1)
+            time.sleep(config['TIME_TO_SLEEP'])
+            if config['MAX_ITERATIONS']:
+                if iterations >= config['MAX_ITERATIONS']:
+                    logging.info('Maximum number of iterations hit. Quitting..')
+                    exit(0)
