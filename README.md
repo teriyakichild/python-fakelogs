@@ -26,6 +26,7 @@ Environment variables are used to configure the output of this program:
 6. TRANSACTION_ID: Unique Identifier that allows for easy searching of log messages. (Defaults to random UUID)
 7. PRELOAD_DATA: Should data be loaded on startup or should it be generated on the fly. (Defaults to False)
 8. PRELOAD_RECORDS: Number of records to preload. (Defaults to 2000)
+9. TEXT_WORD_COUNT: Number of words to generate when using the "text" output format. (Defaults to 15)
 
 ## Usage
 ```bash
