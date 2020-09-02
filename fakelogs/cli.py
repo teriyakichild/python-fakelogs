@@ -7,9 +7,9 @@ import sys
 import time
 import uuid
 
-from faker import Faker
 from fakelogs.log import generate_text_log, generate_kv_log, generate_json_log
 
+logging.basicConfig(stream=sys.stdout, level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
 
 def read_from_environment():
     config = {}
