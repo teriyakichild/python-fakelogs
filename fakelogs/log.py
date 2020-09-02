@@ -1,8 +1,6 @@
 import json
 import logging
-import random
 import sys
-import time
 
 from faker import Faker
 
@@ -11,8 +9,9 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO, format='%(asctime)s -
 
 
 def generate_text_log(seed, config={}, return_value=False):
+    Faker.seed(seed)
     Factory = Faker()
-    Factory.seed(seed)
+
     nb_words = config.get('TEXT_WORD_COUNT', 15)
     sentence = Factory.sentence(nb_words=nb_words)
     xid = config.get('TRANSACTION_ID', '')
@@ -22,8 +21,8 @@ def generate_text_log(seed, config={}, return_value=False):
         logging.info('{0} {1}'.format(sentence, xid))
 
 def generate_kv_log(seed, config={}, return_value=False):
+    Faker.seed(seed)
     Factory = Faker()
-    Factory.seed(seed)
     profile = Factory.profile()
     profile['xid'] = config.get('TRANSACTION_ID', '')
     # The following fields aren't strings so we will remove them to avoid additional processing.
@@ -41,8 +40,8 @@ def generate_json_log(seed, config={}, return_value=False):
         # to convert the values to a strings.
         return o.__str__()
 
+    Faker.seed(seed)
     Factory = Faker()
-    Factory.seed(seed)
     profile = Factory.profile()
     profile['xid'] = config.get('TRANSACTION_ID', '')
     if return_value:
