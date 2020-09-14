@@ -145,6 +145,4 @@ def main():
         print(json.dumps(config, indent=2))
         exit(0)
 
-    logging.info(json.dumps(config))
-
     run(config)

@@ -4,8 +4,6 @@ COPY . /tmp/fakelogs
 RUN pip install /tmp/fakelogs && \
     rm -r /tmp/fakelogs
 
-#RUN pip install fakelogs
-
 ENV OUTPUT_FORMAT=json
 ENV TIME_TO_SLEEP=1
 ENV RECORDS_PER_ITERATION=10
