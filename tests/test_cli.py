@@ -1,6 +1,7 @@
 import os
 
 import pytest
+from multiprocessing import cpu_count
 from fakelogs.cli import read_from_environment
 
 
@@ -19,18 +20,18 @@ def test_read_from_environment_defaults():
     assert config["OUTPUT_FORMAT"] == "text"
     assert config["TIME_TO_SLEEP"] == 1.0
     assert config["RECORDS_PER_ITERATION"] == 1
-    assert config["POOL_PROCESSES"] == 1
+    assert config["POOL_PROCESSES"] == cpu_count()
 
 
 def test_read_from_environment_overrides():
     os.environ["OUTPUT_FORMAT"] = "json"
     os.environ["TIME_TO_SLEEP"] = "2.0"
     os.environ["RECORDS_PER_ITERATION"] = "100"
-    os.environ["POOL_PROCESSES"] = "4"
+    os.environ["POOL_PROCESSES"] = "999"
     os.environ["TRANSACTION_ID"] = "testing"
     config = read_from_environment()
     assert config["OUTPUT_FORMAT"] == "json"
     assert config["TIME_TO_SLEEP"] == 2.0
     assert config["RECORDS_PER_ITERATION"] == 100
-    assert config["POOL_PROCESSES"] == 4
+    assert config["POOL_PROCESSES"] == 999
     assert config["TRANSACTION_ID"] == "testing"

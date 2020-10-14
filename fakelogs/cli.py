@@ -1,11 +1,13 @@
 import json
 import logging
 from multiprocessing import Pool, cpu_count
+from math import ceil
 import os
 import random
 import sys
 import time
 import uuid
+import re
 import warnings
 
 BYTES = 1
@@ -29,6 +31,9 @@ def read_from_environment():
     config["TIME_TO_SLEEP"] = float(os.getenv("TIME_TO_SLEEP", 1))
     config["RECORDS_PER_ITERATION"] = int(
         os.getenv("RECORDS_PER_ITERATION", 1)
+    )
+    config["MAX_DATA_PER_ITERATION"] = os.getenv(
+        "MAX_DATA_PER_ITERATION", None
     )
     config["POOL_PROCESSES"] = int(os.getenv("POOL_PROCESSES", cpu_count()))
     config["MAX_ITERATIONS"] = int(os.getenv("MAX_ITERATIONS", False))
@@ -94,13 +99,51 @@ def format_bytes(size):
         return f"{round(size, 2)} bytes"
 
 
+def max_data_per_iteration(max_data_str):
+    if not max_data_str:
+        return None
+
+    match = re.search(r"([0-9\.]+)([a-zA-Z]+)", max_data_str)
+    if match:
+        if len(match.groups()) == 1:
+            # Just units, assume bytes
+            return int(match.groups()[0])
+        else:
+            amount, units = match.groups()
+            amount = float(amount)
+            unit = units.lower()[0]
+            if unit == "g":
+                return amount * GBYTES
+            elif unit == "m":
+                return amount * MBYTES
+            elif unit == "k":
+                return amount * KBYTES
+            elif unit == "b":
+                return amount
+            else:
+                raise ValueError(f"Unable to parse units for {max_data_str}")
+
+
+def size_of_line(line):
+    return len(line.encode("utf-8"))
+
+
 def run(config):
     pool = Pool(processes=config["POOL_PROCESSES"])
     data = preload(
         pool, config["PRELOAD_RECORDS"], config["OUTPUT_FORMAT"], config
     )
 
+    data_per = max_data_per_iteration(config["MAX_DATA_PER_ITERATION"])
     records_per = config["RECORDS_PER_ITERATION"]
+    if data_per and data_per > 0:
+        avg_line_size = sum(map(size_of_line, data)) / len(data)
+        lines_per_batch = data_per / avg_line_size
+        records_per = max(1, ceil(lines_per_batch))
+        logging.info(
+            f"data_per={data_per}, avg_line_size={avg_line_size}, lines_per_batch={lines_per_batch}, records_per={records_per}"
+        )
+
     iter_size = 0
     iter_ts = time.time()
     iterations = 0
@@ -110,7 +153,7 @@ def run(config):
 
         ts = time.time()
         lines = random.choices(data, k=records_per)
-        size = sum(map(lambda x: len(x.encode("utf-8")), lines))
+        size = sum(map(size_of_line, lines))
         pool.map(logging.info, lines)
 
         iter_size += size
