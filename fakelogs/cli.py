@@ -8,20 +8,19 @@ import sys
 import time
 import uuid
 import re
-import warnings
 
 BYTES = 1
 KBYTES = 1024 * BYTES
 MBYTES = 1024 * KBYTES
 GBYTES = 1024 * MBYTES
-
+DATE_FORMAT="%d-%b-%y %H:%M:%S"
 from fakelogs.log import generate_text_log, generate_kv_log, generate_json_log
 
 logging.basicConfig(
     stream=sys.stdout,
     level=logging.INFO,
     format="%(asctime)s - %(message)s",
-    datefmt="%d-%b-%y %H:%M:%S",
+    datefmt=DATE_FORMAT,
 )
 
 
@@ -42,6 +41,9 @@ def read_from_environment():
         int(os.getenv("PRELOAD_RECORDS", 2000)),
         config["RECORDS_PER_ITERATION"] * 10,
     )
+    if config["MAX_DATA_PER_ITERATION"]:
+        config["PRELOAD_RECORDS"] = 5000
+
     config["TEXT_WORD_COUNT"] = int(os.getenv("TEXT_WORD_COUNT", 15))
     return config
 
@@ -129,20 +131,20 @@ def size_of_line(line):
 
 
 def run(config):
-    pool = Pool(processes=config["POOL_PROCESSES"])
-    data = preload(
-        pool, config["PRELOAD_RECORDS"], config["OUTPUT_FORMAT"], config
-    )
-
-    data_per = max_data_per_iteration(config["MAX_DATA_PER_ITERATION"])
-    records_per = config["RECORDS_PER_ITERATION"]
-    if data_per and data_per > 0:
-        avg_line_size = sum(map(size_of_line, data)) / len(data)
-        lines_per_batch = data_per / avg_line_size
-        records_per = max(1, ceil(lines_per_batch))
-        logging.info(
-            f"data_per={data_per}, avg_line_size={avg_line_size}, lines_per_batch={lines_per_batch}, records_per={records_per}"
+    with Pool(processes=config["POOL_PROCESSES"]) as pool:
+        data = preload(
+            pool, config["PRELOAD_RECORDS"], config["OUTPUT_FORMAT"], config
         )
+
+        data_per = max_data_per_iteration(config["MAX_DATA_PER_ITERATION"])
+        records_per = config["RECORDS_PER_ITERATION"]
+        if data_per and data_per > 0:
+            avg_line_size = sum(map(size_of_line, data)) / len(data)
+            lines_per_batch = data_per / avg_line_size
+            records_per = max(1, ceil(lines_per_batch))
+            logging.info(
+                f"data_per={data_per}, avg_line_size={avg_line_size}, lines_per_batch={lines_per_batch}, records_per={records_per}"
+            )
 
     iter_size = 0
     iter_ts = time.time()
@@ -152,9 +154,13 @@ def run(config):
         iterations += 1
 
         ts = time.time()
+        lines = None
         lines = random.choices(data, k=records_per)
+
         size = sum(map(size_of_line, lines))
-        pool.map(logging.info, lines)
+        for l in lines:
+            # Pretend to be a logger, but fast
+            print("{} {}".format(time.strftime(DATE_FORMAT), l))
 
         iter_size += size
         elap = time.time() - ts
@@ -163,16 +169,16 @@ def run(config):
             + f" count={records_per} size={size} elap={elap}"
         )
 
+        if config["MAX_ITERATIONS"] and iterations >= config["MAX_ITERATIONS"]:
+            logging.info("Maximum number of iterations hit. Quitting..")
+            elap = time.time() - iter_ts
+            logging.info(
+                f"Output {records_per * iterations} lines with a total size of {format_bytes(iter_size)} in {elap}s"
+                + f" count={records_per * iterations} size={iter_size} elap={elap}"
+            )
+            return
+
         time.sleep(config["TIME_TO_SLEEP"])
-        if config["MAX_ITERATIONS"]:
-            if iterations >= config["MAX_ITERATIONS"]:
-                logging.info("Maximum number of iterations hit. Quitting..")
-                elap = time.time() - iter_ts
-                logging.info(
-                    f"Output {records_per * iterations} lines with a total size of {format_bytes(iter_size)} in {elap}s"
-                    + f" count={records_per * iterations} size={iter_size} elap={elap}"
-                )
-                exit(0)
 
 
 def main():
