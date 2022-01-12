@@ -131,20 +131,21 @@ def size_of_line(line):
 
 
 def run(config):
+    data = None
     with Pool(processes=config["POOL_PROCESSES"]) as pool:
         data = preload(
             pool, config["PRELOAD_RECORDS"], config["OUTPUT_FORMAT"], config
         )
 
-        data_per = max_data_per_iteration(config["MAX_DATA_PER_ITERATION"])
-        records_per = config["RECORDS_PER_ITERATION"]
-        if data_per and data_per > 0:
-            avg_line_size = sum(map(size_of_line, data)) / len(data)
-            lines_per_batch = data_per / avg_line_size
-            records_per = max(1, ceil(lines_per_batch))
-            logging.info(
-                f"data_per={data_per}, avg_line_size={avg_line_size}, lines_per_batch={lines_per_batch}, records_per={records_per}"
-            )
+    data_per = max_data_per_iteration(config["MAX_DATA_PER_ITERATION"])
+    records_per = config["RECORDS_PER_ITERATION"]
+    if data_per and data_per > 0:
+        avg_line_size = sum(map(size_of_line, data)) / len(data)
+        lines_per_batch = data_per / avg_line_size
+        records_per = max(1, ceil(lines_per_batch))
+        logging.info(
+            f"data_per={data_per}, avg_line_size={avg_line_size}, lines_per_batch={lines_per_batch}, records_per={records_per}"
+        )
 
     iter_size = 0
     iter_ts = time.time()
@@ -154,7 +155,6 @@ def run(config):
         iterations += 1
 
         ts = time.time()
-        lines = None
         lines = random.choices(data, k=records_per)
 
         size = sum(map(size_of_line, lines))
