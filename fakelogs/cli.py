@@ -146,6 +146,8 @@ def run(config):
                 f"data_per={data_per}, avg_line_size={avg_line_size}, lines_per_batch={lines_per_batch}, records_per={records_per}"
             )
 
+    max_iterations = config['MAX_ITERATIONS']
+
     iter_size = 0
     iter_ts = time.time()
     iterations = 0
@@ -166,10 +168,11 @@ def run(config):
         elap = time.time() - ts
         logging.info(
             f"Output {records_per} lines with a size of {format_bytes(size)} in {elap}s"
-            + f" count={records_per} size={size} elap={elap}"
+            + f" count={records_per} size={size} elap={elap} iter={iterations}"
+            + f" max_iter={max_iterations}"
         )
 
-        if config["MAX_ITERATIONS"] and iterations >= config["MAX_ITERATIONS"]:
+        if max_iterations and iterations >= max_iterations:
             logging.info("Maximum number of iterations hit. Quitting..")
             elap = time.time() - iter_ts
             logging.info(
