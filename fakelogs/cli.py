@@ -160,7 +160,7 @@ def run(config):
         size = sum(map(size_of_line, lines))
         for l in lines:
             # Pretend to be a logger, but fast
-            print("{} {}".format(time.strftime(DATE_FORMAT), l))
+            print("{} - {}".format(time.strftime(DATE_FORMAT), l))
 
         iter_size += size
         elap = time.time() - ts
